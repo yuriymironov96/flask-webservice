@@ -11,16 +11,15 @@ def homepage():
 @app.route('/test/<pagename>')
 def any_page(pagename):
     user_agent = request.headers.get('User-Agent')
-    return '<h1>This is %s!</h1><p>By the way, you use %s!</p>' % (pagename, user_agent)
+    return render_template('user_agent.html', pagename=pagename, user_agent=user_agent)
 
 @app.route('/user/<username>')
 def any_user(username):
-    return render_template('user.html', name=username)
+    return render_template('user.html', username=username)
 
-"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 @app.route('/app/<anything>')
 def anything(anything):
-    return '<h1>Not found</h1>', 404
+    return render_template('not_found.html')
 
 @app.route('/wiki')
 def wiki():
@@ -30,7 +29,7 @@ def wiki():
 def admin(name):
     if name != 'Yury':
         abort(403)
-    return '<h1>You are admin!</h1>'
+    return render_template('admin.html')
 
 if __name__ == '__main__':
     manager.run()
