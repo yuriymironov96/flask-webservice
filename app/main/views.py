@@ -5,6 +5,7 @@ from .forms import NameForm
 from .. import db
 from ..models import User
 from ..email import send_email
+from flask.ext.login import login_required
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
@@ -46,3 +47,8 @@ def admin(name):
     if name != 'Yury':
         abort(403)
     return render_template('admin.html')
+
+@main.route('/secret')
+@login_required
+def secret():
+    return 'Only authenticated users are allowed!'
