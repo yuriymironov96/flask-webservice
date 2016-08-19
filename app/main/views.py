@@ -1,30 +1,23 @@
 from datetime import datetime
 from flask import render_template, session, redirect, url_for, current_app, request, abort, flash
 from . import main
-from .forms import NameForm, EditProfileForm, EditProfileAdminForm
+from .forms import NameForm, EditProfileForm, EditProfileAdminForm, PostForm
 from .. import db
-from ..models import User, Role
+from ..models import User, Role, Permission, Post
 from ..email import send_email
 from flask.ext.login import login_required, current_user
 from ..decorators import admin_required
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    form = NameForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.name.data).first()
-        if user is None:
-            user = User(username=form.name.data)
-            db.session.add(user)
-            session['known'] = False
-            if current_app.config['ADMIN']:
-                send_email(current_app.config['ADMIN'], 'New User', 'mail/new_user', user=user.username)
-        else:
-            session['known'] = True
-        session['name'] = form.name.data
+    form = PostForm()
+    if current_user.can(Permission.WRITE_ARTICLES) and \
+        form.validate_on_submit():
+        post = Post(body=form.body.data, author=current_user._get_current_object())
+        db.session.add(post)
         return redirect(url_for('.index'))
-    return render_template('index.html', form=form, name=session.get('name'),
-    known=session.get('known', False), current_time=datetime.utcnow())
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return render_template('index.html', form=form, posts=posts)
 
 @main.route('/test/<pagename>')
 def any_page(pagename):
@@ -82,7 +75,7 @@ def edit_profile_admin(id):
         user.username = form.username.data
         user.confirmed = form.confirmed.data
         user.role = Role.query.get(form.role.data)
-        user.name = form.about_me.data
+        user.name = form.name.data
         user.location = form.location.data
         user.about_me = form.about_me.data
         db.session.add(user)
