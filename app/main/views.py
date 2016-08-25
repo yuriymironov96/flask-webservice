@@ -1,5 +1,6 @@
 from datetime import datetime
-from flask import render_template, session, redirect, url_for, current_app, request, abort, flash
+from flask import render_template, session, redirect, url_for, current_app, \
+    request, abort, flash
 from . import main
 from .forms import NameForm, EditProfileForm, EditProfileAdminForm, PostForm
 from .. import db
@@ -13,7 +14,8 @@ def index():
     form = PostForm()
     if current_user.can(Permission.WRITE_ARTICLES) and \
         form.validate_on_submit():
-        post = Post(body=form.body.data, author=current_user._get_current_object())
+        post = Post(body=form.body.data,
+            author=current_user._get_current_object())
         db.session.add(post)
         return redirect(url_for('.index'))
     posts = Post.query.order_by(Post.timestamp.desc()).all()
@@ -22,7 +24,8 @@ def index():
 @main.route('/test/<pagename>')
 def any_page(pagename):
     user_agent = request.headers.get('User-Agent')
-    return render_template('user_agent.html', pagename=pagename, user_agent=user_agent)
+    return render_template('user_agent.html', pagename=pagename,
+        user_agent=user_agent)
 
 @main.route('/app/<anything>')
 def anything(anything):
@@ -46,7 +49,10 @@ def secret():
 @main.route('/user/<username>')
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
-    return render_template('user.html', user=user)
+    if user is None:
+        abort(404)
+    posts = user.posts.order_by(Post.timestamp.desc()).all()
+    return render_template('user.html', user=user, posts = posts)
 
 @main.route('/edit-profile', methods=['GET', 'POST'])
 @login_required
