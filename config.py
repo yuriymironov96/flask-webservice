@@ -7,6 +7,7 @@ class Config:
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     MAIL_SUBJECT_PREFIX = '[Yuriy Mironov blog]'
     MAIL_SENDER = 'Blog Admin <noreply.mironov@gmail.com>'
+    POSTS_PER_PAGE = 5
     ADMIN = os.environ.get('ADMIN')
 
     @staticmethod
