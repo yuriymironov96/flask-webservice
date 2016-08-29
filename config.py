@@ -8,6 +8,8 @@ class Config:
     MAIL_SUBJECT_PREFIX = '[Yuriy Mironov blog]'
     MAIL_SENDER = 'Blog Admin <noreply.mironov@gmail.com>'
     POSTS_PER_PAGE = 5
+    FOLLOWERS_PER_PAGE = 10
+    COMMENTS_PER_PAGE = 10
     ADMIN = os.environ.get('ADMIN')
 
     @staticmethod
@@ -24,6 +26,7 @@ class DevelopmentConfig(Config):
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
     'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+    SQLALCHEMY_ECHO = DEBUG
 
 
 class TestingConfig(Config):
